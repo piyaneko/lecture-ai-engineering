@@ -11,7 +11,6 @@ import pickle
 import time
 import great_expectations as gx
 
-
 class DataLoader:
     """データロードを行うクラス"""
 
@@ -21,15 +20,14 @@ class DataLoader:
         if path:
             return pd.read_csv(path)
         else:
-            # ローカルのファイル
-            # Colab内の絶対パスを指定
-            absolute_colab_path = "/content/lecture-ai-engineering/day5/演習2/data/Titanic.csv"  # ←ここを修正！
-            if os.path.exists(absolute_colab_path):
-                return pd.read_csv(absolute_colab_path)
+            # スクリプト(main.py)からの相対パスで指定
+            # main.py が day5/演習2/ にあるので、
+            # data/Titanic.csv は day5/演習2/data/Titanic.csv を指す
+            relative_script_path = "data/Titanic.csv"  # ← このように変更！
+            if os.path.exists(relative_script_path):
+                return pd.read_csv(relative_script_path)
             else:
-                print(
-                    f"警告: 指定された絶対パスにファイルが見つかりません: {absolute_colab_path}"
-                )
+                print(f"警告: 指定された相対パスにファイルが見つかりません: {relative_script_path} (現在の作業ディレクトリ: {os.getcwd()})")
                 return None
 
     @staticmethod
