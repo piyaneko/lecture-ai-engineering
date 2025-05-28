@@ -11,6 +11,7 @@ import pickle
 import time
 import great_expectations as gx
 
+
 class DataLoader:
     """データロードを行うクラス"""
 
@@ -21,9 +22,15 @@ class DataLoader:
             return pd.read_csv(path)
         else:
             # ローカルのファイル
-            local_path = "data/Titanic.csv"
-            if os.path.exists(local_path):
-                return pd.read_csv(local_path)
+            # Colab内の絶対パスを指定
+            absolute_colab_path = "/content/lecture-ai-engineering/day5/演習2/data/Titanic.csv"  # ←ここを修正！
+            if os.path.exists(absolute_colab_path):
+                return pd.read_csv(absolute_colab_path)
+            else:
+                print(
+                    f"警告: 指定された絶対パスにファイルが見つかりません: {absolute_colab_path}"
+                )
+                return None
 
     @staticmethod
     def preprocess_titanic_data(data):
@@ -246,6 +253,48 @@ def test_model_performance():
     assert (
         metrics["inference_time"] < 1.0
     ), f"推論時間が長すぎます: {metrics['inference_time']}秒"
+
+
+def test_inference_speed_and_accuracy():
+    """推論時間と精度をチェックする新しいテスト関数"""
+    print("\n実行中: test_inference_speed_and_accuracy")
+
+    # データ準備 (test_model_performance と同様)
+    data = DataLoader.load_titanic_data()  # 修正されたload_titanic_dataが使われます
+    if data is None:
+        assert (
+            False
+        ), "テスト用データのロードに失敗しました (test_inference_speed_and_accuracy)"
+
+    X, y = DataLoader.preprocess_titanic_data(data)
+    if X is None or y is None:
+        assert (
+            False
+        ), "テスト用データの前処理に失敗しました (test_inference_speed_and_accuracy)"
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42  # 再現性のためにrandom_stateを固定
+    )
+
+    # モデル学習 (このテスト内でモデルを確実に利用可能にするため)
+    model_params = {"n_estimators": 100, "random_state": 42}  # 例のパラメータ
+    model = ModelTester.train_model(X_train, y_train, model_params=model_params)
+    if model is None:
+        assert False, "モデルの学習に失敗しました (test_inference_speed_and_accuracy)"
+
+    # 評価
+    metrics = ModelTester.evaluate_model(model, X_test, y_test)
+    accuracy = metrics["accuracy"]
+    inference_time = metrics["inference_time"]
+
+    print(f"テスト結果 - 精度: {accuracy:.4f}")
+    print(f"テスト結果 - 推論時間: {inference_time:.4f}秒")
+
+    # pytestのためのアサーション (閾値は例です。必要に応じて調整してください)
+    assert accuracy > 0.70, f"精度 ({accuracy:.4f}) が閾値 (0.70) を下回っています。"
+    assert (
+        inference_time < 1.0
+    ), f"推論時間 ({inference_time:.4f}秒) が閾値 (1.0秒) を超えています。"
 
 
 if __name__ == "__main__":

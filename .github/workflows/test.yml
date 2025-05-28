@@ -1,41 +1,48 @@
 name: ML Pipeline CI
 
 on:
-  # push:
-  #   branches: [ main, master  ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, develop ] # 'develop' を追加しました
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # 実行環境として最新のUbuntuを使用します
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v3 # リポジトリのコードをチェックアウト（ダウンロード）します
     
-    - name: Set up Python
+    - name: Set up Python # Pythonの環境をセットアップします
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.10' # Pythonのバージョンを指定します（あなたの環境に合わせて変更してもOKです）
         
-    - name: Install dependencies
+    - name: Install dependencies # 必要なライブラリをインストールします
       run: |
         python -m pip install --upgrade pip
-        pip install pytest great_expectations pandas scikit-learn flake8 black mypy pytest-cov
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest great_expectations pandas scikit-learn flake8 black
+        # もし day5/requirements.txt のようなファイルに他の必要なライブラリが書かれている場合は、
+        # 以下の行のコメントを解除してパスを調整してください。
+        # if [ -f day5/requirements.txt ]; then pip install -r day5/requirements.txt; fi
         
-    - name: Lint with flake8
+    - name: Lint with flake8 # flake8でコードスタイルをチェックします
       run: |
-        flake8 day5/演習3 --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 day5/演習3 --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+        # チェック対象のパスを day5/演習2 に変更しました
+        flake8 day5/演習2 --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 day5/演習2 --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
         
-    - name: Format check with black
+    - name: Format check with black # blackでコードフォーマットをチェックします
       run: |
-        black --check day5/演習3
+        # チェック対象のパスを day5/演習2 に変更しました
+        black --check day5/演習2
         
-    - name: Run data tests
-      run: |
-        pytest day5/演習3/tests/test_data.py -v
+    # 演習3を対象としていた古いテスト実行ステップは削除しました。
+    # - name: Run data tests
+    #   run: |
+    #     pytest day5/演習3/tests/test_data.py -v
         
-    - name: Run model tests
+    # - name: Run model tests
+    #   run: |
+    #     pytest day5/演習3/tests/test_model.py -v
+
+    - name: Run pytest on main.py for Exercise 2 # 演習2のmain.pyに対してpytestを実行する新しいステップを追加しました
       run: |
-        pytest day5/演習3/tests/test_model.py -v
+        pytest day5/演習2/main.py -v # -v オプションで詳細な結果を表示します
