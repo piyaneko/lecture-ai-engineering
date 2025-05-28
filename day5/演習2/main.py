@@ -11,6 +11,7 @@ import pickle
 import time
 import great_expectations as gx
 
+
 class DataLoader:
     """データロードを行うクラス"""
 
@@ -27,7 +28,9 @@ class DataLoader:
             if os.path.exists(relative_script_path):
                 return pd.read_csv(relative_script_path)
             else:
-                print(f"警告: 指定された相対パスにファイルが見つかりません: {relative_script_path} (現在の作業ディレクトリ: {os.getcwd()})")
+                print(
+                    f"警告: 指定された相対パスにファイルが見つかりません: {relative_script_path} (現在の作業ディレクトリ: {os.getcwd()})"
+                )
                 return None
 
     @staticmethod
