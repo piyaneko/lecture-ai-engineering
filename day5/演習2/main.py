@@ -63,30 +63,27 @@ class DataValidator:
         try:
             context = gx.get_context()
             data_source = context.data_sources.add_pandas("pandas")
-            data_asset = data_source.add_dataframe_asset(
-                name="pd dataframe asset"
-            )
+            data_asset = data_source.add_dataframe_asset(name="pd dataframe asset")
             batch_definition = data_asset.add_batch_definition_whole_dataframe(
                 "batch definition"
             )
-            batch = batch_definition.get_batch(
-                batch_parameters={"dataframe": data}
-            )
+            batch = batch_definition.get_batch(batch_parameters={"dataframe": data})
             results = []
             required_columns = [
-                "Pclass", "Sex", "Age", "SibSp",
-                "Parch", "Fare", "Embarked",
+                "Pclass",
+                "Sex",
+                "Age",
+                "SibSp",
+                "Parch",
+                "Fare",
+                "Embarked",
             ]
             missing_columns = [
                 col for col in required_columns if col not in data.columns
             ]
             if missing_columns:
-                print(
-                    f"警告: 以下のカラムがありません: "
-                    f"{missing_columns}"
-                )
-                return False, [{"success": False,
-                                "missing_columns": missing_columns}]
+                print(f"警告: 以下のカラムがありません: " f"{missing_columns}")
+                return False, [{"success": False, "missing_columns": missing_columns}]
             expectations = [
                 gx.expectations.ExpectColumnDistinctValuesToBeInSet(
                     column="Pclass", value_set=[1, 2, 3]
@@ -111,8 +108,9 @@ class DataValidator:
             return is_successful, results
         except Exception as e:
             error_message = f"Great Expectations検証エラー: {e}"
-            print(error_message[:75] + "..."
-                  if len(error_message) > 78 else error_message)
+            print(
+                error_message[:75] + "..." if len(error_message) > 78 else error_message
+            )
             return False, [{"success": False, "error": str(e)}]
 
 
@@ -215,12 +213,8 @@ def test_model_performance():
     error_msg_baseline = (
         f"モデル性能がベースラインを下回っています: {metrics['accuracy']}"
     )
-    assert ModelTester.compare_with_baseline(
-        metrics, 0.75
-    ), error_msg_baseline
-    error_msg_time = (
-        f"推論時間が長すぎます: {metrics['inference_time']}秒"
-    )
+    assert ModelTester.compare_with_baseline(metrics, 0.75), error_msg_baseline
+    error_msg_time = f"推論時間が長すぎます: {metrics['inference_time']}秒"
     assert metrics["inference_time"] < 1.0, error_msg_time
 
 
@@ -229,38 +223,34 @@ def test_inference_speed_and_accuracy():
     print("\n実行中: test_inference_speed_and_accuracy")
     data = DataLoader.load_titanic_data()
     if data is None:
-        assert (
-            False
-        ), ("テスト用データのロードに失敗しました "
-            "(test_inference_speed_and_accuracy)")
+        assert False, (
+            "テスト用データのロードに失敗しました "
+            "(test_inference_speed_and_accuracy)"
+        )
     X, y = DataLoader.preprocess_titanic_data(data)
     if X is None or y is None:
-        assert (
-            False
-        ), ("テスト用データの前処理に失敗しました "
-            "(test_inference_speed_and_accuracy)")
+        assert False, (
+            "テスト用データの前処理に失敗しました "
+            "(test_inference_speed_and_accuracy)"
+        )
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
     model_params = {"n_estimators": 100, "random_state": 42}
-    model = ModelTester.train_model(
-        X_train, y_train, model_params=model_params
-    )
+    model = ModelTester.train_model(X_train, y_train, model_params=model_params)
     if model is None:
-        assert False, ("モデルの学習に失敗しました "
-                       "(test_inference_speed_and_accuracy)")
+        assert False, (
+            "モデルの学習に失敗しました " "(test_inference_speed_and_accuracy)"
+        )
     metrics = ModelTester.evaluate_model(model, X_test, y_test)
     accuracy = metrics["accuracy"]
     inference_time = metrics["inference_time"]
     print(f"テスト結果 - 精度: {accuracy:.4f}")
     print(f"テスト結果 - 推論時間: {inference_time:.4f}秒")
-    error_msg_acc = (
-        f"精度 ({accuracy:.4f}) が閾値 (0.70) を下回っています。"
-    )
+    error_msg_acc = f"精度 ({accuracy:.4f}) が閾値 (0.70) を下回っています。"
     assert accuracy > 0.70, error_msg_acc
     error_msg_time = (
-        f"推論時間 ({inference_time:.4f}秒) "
-        f"が閾値 (1.0秒) を超えています。"
+        f"推論時間 ({inference_time:.4f}秒) " f"が閾値 (1.0秒) を超えています。"
     )
     assert inference_time < 1.0, error_msg_time
 
@@ -270,11 +260,11 @@ if __name__ == "__main__":
     X, y = DataLoader.preprocess_titanic_data(data)
     success, results = DataValidator.validate_titanic_data(X)
     # E501修正: 277行目あたり
-    status_message = '成功' if success else '失敗'
+    status_message = "成功" if success else "失敗"
     print(f"データ検証結果: {status_message}")
     for result in results:
         if not result["success"]:
-            error_type = result.get('expectation_config', {}).get('type', 'N/A')
+            error_type = result.get("expectation_config", {}).get("type", "N/A")
             error_details = str(result)[:50] + "..."
             print(f"異常タイプ: {error_type}, 結果: {error_details}")
     if not success:
@@ -292,6 +282,5 @@ if __name__ == "__main__":
     baseline_ok = ModelTester.compare_with_baseline(metrics)
     print(f"ベースライン比較: {'合格' if baseline_ok else '不合格'}")
 
-    
 
 # W292修正: ファイルの最後に空行が1行あることを確認 (この行が最後の行なので、この下にエディタで空行を追加)
