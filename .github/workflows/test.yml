@@ -43,6 +43,7 @@ jobs:
     #   run: |
     #     pytest day5/演習3/tests/test_model.py -v
 
-    - name: Run pytest on main.py for Exercise 2 # 演習2のmain.pyに対してpytestを実行する新しいステップを追加しました
+    - name: Run pytest on main.py for Exercise 2 # 演習2のmain.pyに対してpytestを実行するステップ
+      working-directory: ./day5/演習2   # ★★★ この行を追加しました ★★★
       run: |
-        pytest day5/演習2/main.py -v # -v オプションで詳細な結果を表示します
+        pytest main.py -v               # ★★★ コマンドのパスを修正しました ★★★
